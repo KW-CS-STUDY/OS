@@ -97,3 +97,64 @@ I/O상태
 - 타이머가 일정주기별로 강제 인터럽트 발생
 - 인터럽트가 발생하면 OS가 cpu 뺐음
 - 그후 다음 프로세스 선택
+
+## CPU 스케줄링
+- 다음에 실행될 프로세스를 선택하는 코드이다.
+- 언제 스케줄링을 하는가?
+1. 프로세스가 running -> waiting(blocked) : I/O 요청 등
+2. 프로세스가 running -> ready : 시간 다씀
+3. 프로세스가 waiting -> ready : I/O 요청 종료
+4. 프로세스가 종료되었을때
+- 1,4는 프로세스가 자발적 반납
+- 2,3은 OS가 뺏음
+
+### 스케줄링 알고리즘 평가기준
+- utilization(효율성) : cpu 얼마나 효율적으로 사용?
+- throughput(처리율) : 단위시간당 처리 프로세스수
+- turnaround time(반환 시간) : 큐에 들어온 순간부터 끝난 시간
+fairness(공평하게)하는것과 퍼포먼스 사이의 조율 필요
+- waiting time(대기 시간) : 큐에 들어와서 기다린 시간
+- response time(반응 시간) : 첫요청 -> 첫 스케줄링 시간
+- 좋은 알고리즘은
+utilization,throughput 높고
+turnaround time,waiting time,response time 낮은 알고리즘
+- 평균보다 분산을 줄이는것이 좋을때도 있음
+
+### FIFO
+- 선입선출 알고리즘
+- 먼저 들어온 프로세스 순서대로 처리
+- 하지만 앞의 프로세스가 시간이 너무 오래걸리면 tt가 안좋아짐
+- Non-preemptive
+
+### Shortest Job First
+- 빠른 작업을 먼저 수행
+- 작업 속도를 안다고 가정
+- 동시에 요청이 들어온다고 가정
+- 하지만 여전히 긴 작업이 미리 진행중이라면 tt 저하
+- Non-preemptive
+
+### Shortest Time-to-Completion First
+- Preemptive
+- OS권한으로 CPU 뺐기
+- 남은 작업시간 비교해서 짧은 작업 실행
+
+### 작업시간 예측
+- 작업시간을 어떻게 알까?
+- 과거 history보고 예측
+- 다음예측값 = a*실제걸린시간 + (1-a)이전예측시간
+![image](https://user-images.githubusercontent.com/30014736/185825852-9f35a485-3a7b-412f-8c9c-0a356ab83551.png)
+- a값에 따라 최근값을 더 반영할것인지 이전값을 더 반영할것인지
+
+### Round Robin
+- 이제 tt 말고 rt(응답시간)도 관심사항
+- time slice로 잘라서 큐에 넣고 돌려가며 실행
+- 시간주고 못끝내면 큐의 끝으로 보냄
+- 타이머 인터럽트가 필수
+- 공평하기는 하지만 tt는 안좋음
+- time slice가 짧으면 문맥교환시간이 증가->cpu효율 감소
+- time slice가 길면 문맥교환시간 감소->응답시간 감소
+- 적당한 trade-off 적당히
+
+### Incorporating I/O
+- 모든 프로그램은 I/O사용
+- I/O요청중 노는시간동안 다른 프로세스 실행가능
